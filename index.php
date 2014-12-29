@@ -4,7 +4,6 @@ require_once('inc/inc.php');
 $db = new DB();
 $templ = new Template();
 $ob = new FormData();
-$mail = new PHPMailer();
 
 $pageTpl = Template::getTemplate('page');
 $templ->setHtml(Template::getTemplate('form_registration'));
@@ -19,32 +18,15 @@ if(FormRegistration::isFormSubmitted()){
         $templ->setHtml($templ->processTemplateErrorOutput($validateFormResult));
     } else {
         $ob->hash = md5($ob->userName);
-        if($db->saveUser($ob)){
-            $message = "Уважаемый".$ob->userName.",<br/>
-            Спасибо за то, что Вы  создали аккаунт у нас. Для того чтобы активировать Ваш профайл нажмите на ссылку ниже:<br/>
-            <a href='http://localhost/registration/registr.php?userName=".$ob->userName."&hash=".$ob->hash."' target='_blank'>
-            http://localhost/registration/registr.php</a>";
-            $mail->IsSMTP();
-            $mail->SMTPAuth = true;
-            $mail->SMTPKeepAlive = true;
-            $mail->SMTPSecure = "ssl";
-            $mail->Host = 'smtp.yandex.ru';
-            $mail->Port = 465;
-            $mail->Username = 'al.oz2015@yandex.ru';
-            $mail->Password = 'Paradise90';
-            $mail->SetFrom('al.oz2015@yandex.ru');
-            $mail->CharSet = 'UTF-8';
-            $mail->Subject = 'Title';
-            $mail->MsgHTML($message);
-            $mail->AddAddress($ob->userEmail);
-            if(!$mail->send()) {
-                $msg .= 'Сообщение не было отправлено. Mailer ошибка: ' . $mail->ErrorInfo;
-            } else {
+        if(Mail::goMail($ob)){
+            if($db->saveUser($ob)) {
                 header('Location: '.$_SERVER['PHP_SELF'].'?success=1');
                 die;
+            } else {
+                $msg .= 'Ошибка сохранения';
             }
         } else {
-            $msg = 'Ошибка сохранения';
+            $msg = 'Сообщение не было отправлено. Mailer ошибка';
         }
     }
 }

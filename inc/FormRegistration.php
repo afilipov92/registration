@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 class FormRegistration{
     /**
      * Проверяет была ли отправлена форма
@@ -8,6 +8,9 @@ class FormRegistration{
         return (isset($_POST) AND !empty($_POST));
     }
 
+    /**
+     * @return bool
+     */
     public static function isSuccess(){
         return (isset($_GET['success']) AND !empty($_GET['success']));
     }
@@ -61,7 +64,8 @@ class FormRegistration{
         }
         if(preg_match('/(?=^.{6,}$)((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/', $ob->password) == 0){
             $resp = false;
-            $errors['password'] = "Проверьте ввод пароля (пароль должен быть от 6 символов, должны присутствовать:\n загланвые буквы, цифры, допускаются спец символы)";
+            $errors['password'] = "Проверьте ввод пароля (пароль должен быть от 6 символов, должны присутствовать:\n
+            загланвые буквы, цифры, допускаются спец символы)";
         }
         if($ob->password != $ob->passwordConfirm){
             $resp = false;
@@ -98,12 +102,13 @@ class FormRegistration{
         return $a.' '.$marker.' '.$b;
     }
 
+    /**
+     * устанавливает значения userName и hash из письма активации
+     * @param FormData $ob
+     */
     public static function  getActivateData(FormData $ob){
         $ob->userName = isset($_GET['userName'])? trim(htmlspecialchars($_GET['userName'])): "";
         $ob->hash = isset($_GET['hash'])? trim(htmlspecialchars($_GET['hash'])): "";
     }
 
-    public static function  checkLinks(FormData $ob, array $arr){
-
-    }
 }

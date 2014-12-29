@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 class DB{
 
@@ -20,17 +20,15 @@ class DB{
     }
 
     /**
-     * добавляет новую категорию или обновляет
+     * добавляет новыого пользователя
      * @param FormData $Data
      * @return bool
      */
     public function saveUser(FormData $Data){
         $ins = $this->db->prepare("INSERT INTO users (userName, userEmail, password, id_status, hash) VALUES (:userName, :userEmail, :password, :id_status, :hash)");
-        if($ins->execute(array('userName' => $Data->userName, 'userEmail' => $Data->userEmail, 'password' => md5($Data->password), 'id_status' => 1, 'hash' => $Data->hash))){
-            return true;
-        } else{
-            return false;
-        }
+        return $ins->execute(array(
+            'userName' => $Data->userName, 'userEmail' => $Data->userEmail, 'password' => md5($Data->password), 'id_status' => 2, 'hash' => $Data->hash
+        ));
     }
 
     /**
@@ -65,9 +63,15 @@ class DB{
         }
     }
 
-    public function getHashDB($userName){
-        $sth = $this->db->prepare("SELECT * FROM users WHERE userName = :userName");
-        $sth->execute(array('userName' => $userName));
+    /**
+     * Выборка из таблицы users по userName и hash
+     * @param $userName
+     * @param $hash
+     * @return bool|mixed
+     */
+    public function getHashDB($userName, $hash){
+        $sth = $this->db->prepare("SELECT * FROM users WHERE userName = :userName AND hash = :hash");
+        $sth->execute(array('userName' => $userName, 'hash' => $hash));
         $mas = $sth->fetch(PDO::FETCH_ASSOC);
         if(!empty($mas)){
             return $mas;
@@ -76,12 +80,13 @@ class DB{
         }
     }
 
+    /**
+     * обновляет hash в таблице users
+     * @param $id
+     * @return bool
+     */
     public function updateHashDB($id){
         $sth = $this->db->prepare("UPDATE users SET hash=:hash WHERE id=:id");
-        if($sth->execute(array('hash' => 'actived', 'id' => $id))){
-            return true;
-        } else{
-            return false;
-        }
+        return $sth->execute(array('hash' => 'actived', 'id' => $id));
     }
 }

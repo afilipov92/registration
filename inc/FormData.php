@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 class FormData{
 	private $data = array();
